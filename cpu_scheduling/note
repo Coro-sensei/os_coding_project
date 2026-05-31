@@ -1,0 +1,9 @@
+simulation of cpu scheduling:
+First-Come, First-Served Scheduling
+Shortest-Job-First/Shortest-Job-Next
+Non-preemptive Shortest-Job-First
+Preemptive SJF/Shortest-Remaining-Time-First
+Priority Scheduling
+– Nonpreemptive Priority
+– Preemptive Priority   
+Round-Robin Scheduling

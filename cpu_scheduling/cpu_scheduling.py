@@ -48,6 +48,8 @@ process_colors = [
     C.bg_white + C.bblack,
 ]
 
+idle_color = C.dim + C.bblack
+
 # Process class:
 class Process: 
     def __init__(self, pid, arrival_time, burst_time):

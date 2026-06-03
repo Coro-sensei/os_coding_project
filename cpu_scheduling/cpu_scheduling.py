@@ -2,6 +2,13 @@ import os
 import time 
 import sys
 
+# ANSI color codes:
+class C:
+    
+
+
+
+
 # Process class:
 class Process: 
     def __init__(self, pid, arrival_time, burst_time):
@@ -22,3 +29,10 @@ class Process:
     def __repr__(self):
         return (f"Process(pid={self.pid}, arrival_time={self.arrival_time}, "
                 f"burst_time={self.burst_time})")
+    
+# ASCII 
+
+WIDTH = 78
+
+def clear():
+    os.system('cls' if os.name == 'nt' else 'clear')

@@ -17,7 +17,16 @@ class C:
     magenta = '\033[35m'
     cyan = '\033[36m'
     white = '\033[37m'
-
+    
+    # Bright Foreground
+    bblack = '\033[90m'
+    bred = '\033[91m'
+    bgreen = '\033[92m'
+    byellow = '\033[93m'    
+    bblue = '\033[94m'
+    bmagenta = '\033[95m'
+    bcyan = '\033[96m'
+    bwhite = '\033[97m'
 
 
 

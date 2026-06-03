@@ -50,6 +50,12 @@ process_colors = [
 
 idle_color = C.dim + C.bblack
 
+def proc_color(pid):
+    if pid is None:
+        return idle_color
+    idx = int(pid[1:]) - 1
+    return process_colors[idx % len(process_colors)] 
+
 # Process class:
 class Process: 
     def __init__(self, pid, arrival_time, burst_time):

@@ -18,3 +18,7 @@ class Process:
         self.waiting_time = 0
         self.turnaround_time = 0
         self.response_time = None
+
+    def __repr__(self):
+        return (f"Process(pid={self.pid}, arrival_time={self.arrival_time}, "
+                f"burst_time={self.burst_time})")

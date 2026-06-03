@@ -4,7 +4,11 @@ import sys
 
 # ANSI color codes:
 class C:
-    
+    reset = '\033[0m'
+    bold = '\033[1m'
+    dim = '\033[2m'
+
+     
 
 
 

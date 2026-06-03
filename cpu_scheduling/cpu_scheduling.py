@@ -37,8 +37,16 @@ class C:
     bg_magenta = '\033[45m'
     bg_cyan = '\033[46m'
     bg_white = '\033[47m'
-    
 
+process_colors = [
+    C.bg_blue + C.bwhite,
+    C.bg_green + C.bblack,
+    C.bg_yellow + C.bblack,
+    C.bg_magenta + C.bwhite,
+    C.bg_cyan + C.bblack,
+    C.bg_red + C.bwhite,
+    C.bg_white + C.bblack,
+]
 
 # Process class:
 class Process: 

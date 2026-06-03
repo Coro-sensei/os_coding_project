@@ -11,3 +11,10 @@ class Process:
         self.remaining_time = burst_time
         self.waiting_time = 0
         self.turnaround_time = 0
+
+        # computed
+        self.start_time = None
+        self.finish_time = None
+        self.waiting_time = 0
+        self.turnaround_time = 0
+        self.response_time = None

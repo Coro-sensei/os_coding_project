@@ -110,6 +110,9 @@ def info(label, value, lw = 20):
 def success(msg):
     print(C.green + msg + C.reset)
 
+def note(msg):
+    print(C.bblack + msg + C.reset)
+
 def error(msg):
     print(C.bred + msg + C.reset)
 # Gantt chart:

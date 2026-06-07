@@ -121,7 +121,8 @@ def draw_gantt(timeline):
     """"timeline: list of (pid, start_time, end_time)"""
     section("Gantt Chart")
     if not timeline:
-        
+        note("No processes were scheduled.")
+        return
 
 
 if __name__ == "__main__":

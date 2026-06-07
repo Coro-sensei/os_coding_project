@@ -86,4 +86,11 @@ def clear():
 
 def hr(char = '-', color  = C.bblack):
     print(color + char * WIDTH + C.reset)
-    
+
+def banner(text, color = C.cyan):
+    print()
+    hr('=', color)
+    pad = (WIDTH - len(text) - 2) // 2
+    print(color + ' ' * pad + text + ' ' * pad + C.reset)
+    hr('=', color)
+    print()

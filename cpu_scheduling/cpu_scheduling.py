@@ -123,6 +123,12 @@ def draw_gantt(timeline):
     if not timeline:
         note("No processes were scheduled.")
         return
+    
+    total = timeline[-1][2]  # end_time of last entry
+    max_w = WIDTH - 4
+    scale = max(1, total / max_w) if total > max_w else 1
+    widths = [max(1, round((e - s) / scale)) for _, s, e in timeline]
+
 
 
 if __name__ == "__main__":

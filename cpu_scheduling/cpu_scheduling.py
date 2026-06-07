@@ -112,7 +112,13 @@ def success(msg):
 
 def error(msg):
     print(C.bred + msg + C.reset)
+# Gantt chart:
 
+def draw_gantt(timeline):
+    """"timeline: list of (pid, start_time, end_time)"""
+    section("Gantt Chart")
+    if not timeline:
+        
 
 
 if __name__ == "__main__":

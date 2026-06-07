@@ -83,3 +83,7 @@ WIDTH = 78
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+def hr(char = '-', color  = C.bblack):
+    print(color + char * WIDTH + C.reset)
+    

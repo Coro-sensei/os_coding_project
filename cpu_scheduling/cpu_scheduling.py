@@ -129,6 +129,9 @@ def draw_gantt(timeline):
     scale = max(1, total / max_w) if total > max_w else 1
     widths = [max(1, round((e - s) / scale)) for _, s, e in timeline]
 
+    top = " ┌" + "".join("─" * w + "┬" for w in widths)
+    print(top[:-1] + "┐")
+
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from cProfile import label
 import os 
+from pydoc import text
 import time 
 import sys
 
@@ -104,3 +105,9 @@ def section(text):
 
 def info(label, value, lw = 20):
     print(f"  {C.dim}{label:<{lw}}{C.reset}{C.bold}{value}{C.reset}")
+
+def success(msg):
+    print(C.green + msg + C.reset)
+
+def error(msg):
+    print(C.bred + msg + C.reset)

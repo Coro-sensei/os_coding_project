@@ -94,3 +94,9 @@ def banner(text, color = C.cyan):
     print(color + ' ' * pad + text + ' ' * pad + C.reset)
     hr('=', color)
     print()
+
+def section(text):
+    print()
+    hr('-', C.bblack)
+    print(C.bold + text + C.reset)
+    hr('-', C.bblack)

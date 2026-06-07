@@ -1,3 +1,4 @@
+from cProfile import label
 import os 
 import time 
 import sys
@@ -100,3 +101,6 @@ def section(text):
     hr('-', C.bblack)
     print(C.bold + text + C.reset)
     hr('-', C.bblack)
+
+def info(label, value, lw = 20):
+    print(f"  {C.dim}{label:<{lw}}{C.reset}{C.bold}{value}{C.reset}")

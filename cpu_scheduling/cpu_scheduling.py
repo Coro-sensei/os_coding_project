@@ -3,6 +3,7 @@ import os
 from pydoc import text
 import time 
 import sys
+from timeit import main
 
 # ANSI color codes:
 class C:
@@ -111,3 +112,8 @@ def success(msg):
 
 def error(msg):
     print(C.bred + msg + C.reset)
+
+
+
+if __name__ == "__main__":
+    main()

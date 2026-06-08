@@ -39,17 +39,6 @@ class FIFOSimulator:
 	def run_fifo(self):
 		self.output.delete("1.0", tk.END)
 
-	def animate_steps(self, steps, index=0):
-		if index >= len(steps):
-			return
-
-		text, delay = steps[index]
-
-		self.output.insert(tk.END, text + "\n")
-		self.output.see(tk.END)
-
-		self.root.after(delay, lambda: self.animate_steps(steps, index + 1))
-
 		# Validate frames
 		try:
 			frames_count = int(self.frames_entry.get())
@@ -66,52 +55,67 @@ class FIFOSimulator:
 				raise ValueError
 		except ValueError:
 			messagebox.showerror("Error",
-								 f"Enter 1 to {MAX_REFERENCES} integers separated by commas")
+								f"Enter 1 to {MAX_REFERENCES} integers separated by commas")
 			return
 
 		frames = []
 		page_faults = 0
+		self.steps_queue = []
 
 		self.output.insert(tk.END, "FIFO Simulation Steps:\n")
 		self.output.insert(tk.END, "-" * 50 + "\n")
 
-		self.steps_queue = []
-
+		# ✅ FIXED LOOP (THIS WAS BROKEN IN YOUR CODE)
 		for i, page in enumerate(ref_string, 1):
 
 			prev_frames = frames.copy()
 
-		if page not in frames:
-			page_faults += 1
+			if page not in frames:
+				page_faults += 1
 
-			if len(frames) < frames_count:
-				frames.append(page)
+				if len(frames) < frames_count:
+					frames.append(page)
+				else:
+					frames.pop(0)
+					frames.append(page)
+
+				status = "FAULT"
+				change_type = "Inserted/Replaced"
 			else:
-				frames.pop(0)
-				frames.append(page)
+				status = "HIT"
+				change_type = "No Change"
 
-			status = "FAULT 🔴"
-			change_type = "Inserted/Replaced"
-		else:
-			status = "HIT 🟢"
-			change_type = "No Change"
+			# build animation steps properly
+			self.steps_queue.append((f"\nStep {i}", 300))
+			self.steps_queue.append((f"Incoming Page: {page}", 300))
+			self.steps_queue.append((f"Previous Frames: {prev_frames}", 300))
 
-		# Build animation steps (IMPORTANT FIX)
-		self.steps_queue.append((f"\nStep {i}", 400))
-		self.steps_queue.append((f"Incoming Page: {page}", 400))
-		self.steps_queue.append((f"Previous Frames: {prev_frames}", 400))
+			if prev_frames != frames:
+				self.steps_queue.append((f"Updated Frames: {frames} ⚡ ({change_type})", 400))
+			else:
+				self.steps_queue.append((f"Frames Unchanged: {frames}", 400))
 
-		if prev_frames != frames:
-			self.steps_queue.append((f"Updated Frames: {frames} ⚡ ({change_type})", 500))
-		else:
-			self.steps_queue.append((f"Frames Unchanged: {frames}", 500))
+			self.steps_queue.append((f"Status: {status}", 300))
+			self.steps_queue.append(("-" * 50, 200))
 
-		self.steps_queue.append((f"Status: {status}", 400))
-		self.steps_queue.append(("-" * 50, 300))
-
-# Start animation AFTER building queue
+		# start animation
 		self.animate_steps(self.steps_queue)
 
+		# final stats (delayed so UI doesn't feel frozen)
+		self.root.after(len(self.steps_queue) * 400, lambda: self.show_results(ref_string, page_faults))
+
+	def animate_steps(self, steps, index=0):
+		if index >= len(steps):
+			return
+
+		text, delay = steps[index]
+
+		self.output.insert(tk.END, text + "\n")
+		self.output.see(tk.END)
+
+		self.root.after(delay, lambda: self.animate_steps(steps, index + 1))
+
+	def show_results(self, ref_string, page_faults):
 		hits = len(ref_string) - page_faults
 		fault_ratio = page_faults / len(ref_string)
 		hit_ratio = hits / len(ref_string)
@@ -119,7 +123,6 @@ class FIFOSimulator:
 		self.output.insert(tk.END, "\nFinal Results:\n")
 		self.output.insert(tk.END, "-" * 50 + "\n")
 		self.output.insert(tk.END, f"Total References: {len(ref_string)}\n")
-		self.output.insert(tk.END, f"Page Frames: {frames_count}\n")
 		self.output.insert(tk.END, f"Page Hits: {hits}\n")
 		self.output.insert(tk.END, f"Page Faults: {page_faults}\n")
 		self.output.insert(tk.END, f"Hit Ratio: {hit_ratio:.2f}\n")

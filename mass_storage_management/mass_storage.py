@@ -79,3 +79,13 @@ def draw_graph(path):
 
         for i in range(len(points) - 1):
             canvas.create_line(points[i][0], points[i][1], points[i + 1][0], points[i + 1][1], fill="blue", width=2)
+
+def run_visualizer():
+    try:
+        # Extract inputs
+        queue = [int(x.strip()) for x in entry_queue.get().split(",")]
+        head = int(entry_head.get())
+        algo = combo_algo.get()
+
+    except ValueError:
+        messagebox.showerror("Input Error", "Please enter valid numbers.")

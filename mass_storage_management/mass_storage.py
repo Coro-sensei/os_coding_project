@@ -58,3 +58,12 @@ def calculate_clook(queue, head):
     path.extend(right)
     path.extend(left)
     return path, calc_movement(path)
+
+def draw_graph(path):
+    canvas.delete("all")
+    if not path: return
+
+    c_width, c_height = 550, 350
+    pad_x, pad_y = 20, 20
+
+    max_track = max(max(path), 199)

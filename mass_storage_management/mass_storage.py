@@ -82,10 +82,22 @@ def draw_graph(path):
 
 def run_visualizer():
     try:
-        # Extract inputs
         queue = [int(x.strip()) for x in entry_queue.get().split(",")]
         head = int(entry_head.get())
         algo = combo_algo.get()
+
+        if algo == "FCFS":
+            path, total = calculate_fcfs(queue, head)
+        elif algo == "SSTF":
+            path, total = calculate_sstf(queue, head)
+        elif algo == "SCAN":
+            path, total = calculate_scan(queue, head)
+        elif algo == "C-SCAN":
+            path, total = calculate_cscan(queue, head)
+        elif algo == "LOOK":
+            path, total = calculate_look(queue, head)
+        elif algo == "C-LOOK":
+            path, total = calculate_clook(queue, head)
 
     except ValueError:
         messagebox.showerror("Input Error", "Please enter valid numbers.")

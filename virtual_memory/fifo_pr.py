@@ -91,7 +91,7 @@ class FIFOSimulator:
 			self.steps_queue.append((f"Previous Frames: {prev_frames}", 300))
 
 			if prev_frames != frames:
-				self.steps_queue.append((f"Updated Frames: {frames} ⚡ ({change_type})", 400))
+				self.steps_queue.append((f"Updated Frames: {frames}  ({change_type})", 400))
 			else:
 				self.steps_queue.append((f"Frames Unchanged: {frames}", 400))
 

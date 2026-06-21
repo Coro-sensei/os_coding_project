@@ -104,3 +104,7 @@ def run_visualizer():
 
     except ValueError:
         messagebox.showerror("Input Error", "Please enter valid numbers.")
+
+root = tk.Tk()
+root.title("Mass Storage Management - Visualizer")
+root.geometry("650x650")

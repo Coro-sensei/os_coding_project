@@ -126,3 +126,9 @@ tk.Label(frame_inputs, text="Algorithm: ").grid(row=2, column=0, padx=5, pady=5)
 combo_algo = ttk.Combobox(frame_inputes, values=["FCFS", "SSTF", "SCAN", "C-SCAN", "LOOK", "C-LOOK"], state="readonly")
 combo_algo.grid(row=2, column=1, sticky="w", padx=5, pady=5)
 combo_algo.current(0)
+
+btn_run = tk.Button(root, text="Visualize", command=run_visualizer(), bg="lightblue")
+btn_run.pack(pady=5)
+
+lbl_result = tk.Label(root, text="Total Movement: -- \nPath: --", font=("Arial", 10, "bold"), wraplength=600)
+lbl_result.pack(pady=10)

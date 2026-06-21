@@ -67,3 +67,9 @@ def draw_graph(path):
     pad_x, pad_y = 20, 20
 
     max_track = max(max(path), 199)
+
+    points = []
+    for index, track in enumerate(path):
+        x = pad_x + (track / max_track) * (c_width - 2 * pad_x)
+        y = pad_y + (index / max(1, len(path) - 1)) * (c_height - 2 * pad_y)
+        points.append((x, y))

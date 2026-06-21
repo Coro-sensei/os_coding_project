@@ -29,3 +29,15 @@ def calculate_scan(queue, head, max_track=199):
         path.append(max_track)
     path.extend(reversed(left))
     return path, calc_movement(path)
+
+
+def calculate_cscan(queue, head, max_track=199):
+    path = [head]
+    left = sorted([x for x in queue if x < head])
+    right = sorted([x for x in queue if x >= head])
+
+    path.extend(right)
+    path.append(max_track)
+    path.append(0)
+    path.extend(left)
+    return path, calc_movement(path)

@@ -96,8 +96,11 @@ def run_visualizer():
             path, total = calculate_cscan(queue, head)
         elif algo == "LOOK":
             path, total = calculate_look(queue, head)
-        elif algo == "C-LOOK"
+        elif algo == "C-LOOK":
             path, total = calculate_clook(queue, head)
+
+        lbl_result.config(text=f"Algorithm: {algo} | Total Movement: {total}\nPath: {' -> '.join(map(str, path))}")
+        draw_graph(path)
 
     except ValueError:
         messagebox.showerror("Input Error", "Please enter valid numbers.")

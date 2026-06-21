@@ -108,3 +108,11 @@ def run_visualizer():
 root = tk.Tk()
 root.title("Mass Storage Management - Visualizer")
 root.geometry("650x650")
+
+frame_inputs = tk.Frame(root)
+frame_inputs.pack(pady=10)
+
+tk.Label(frame_inputs, text="Queue (comma separated):").grid(row=0, column=0, padx=5, pady=5)
+entry_queue = tk.Entry(frame_inputs, width=40)
+entry_queue.grid(row=0, column=1, padx=5, pady=5)
+entry_queue.insert(0, "98, 183, 37, 122, 14, 124, 65, 67")

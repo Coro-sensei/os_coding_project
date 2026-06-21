@@ -72,4 +72,7 @@ def draw_graph(path):
     for index, track in enumerate(path):
         x = pad_x + (track / max_track) * (c_width - 2 * pad_x)
         y = pad_y + (index / max(1, len(path) - 1)) * (c_height - 2 * pad_y)
-        points.append((x, y))
+        points.append((x, y)
+
+        canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="red")
+        canvas.create_text(x, y - 10, text=str(track), font=("Arial", 8))

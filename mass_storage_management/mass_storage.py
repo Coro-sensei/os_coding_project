@@ -116,3 +116,8 @@ tk.Label(frame_inputs, text="Queue (comma separated):").grid(row=0, column=0, pa
 entry_queue = tk.Entry(frame_inputs, width=40)
 entry_queue.grid(row=0, column=1, padx=5, pady=5)
 entry_queue.insert(0, "98, 183, 37, 122, 14, 124, 65, 67")
+
+tk.Label(frame_inputs, text="Initial Head:").grid(row=1, column=0, padx=5, pady=5)
+entry_head = tk.Entry(frame_inputs, width=10)
+entry_head.grid(row=1, column=1, sticky="w", padx=5, pady=5)
+entry_head.insert(0, "53")

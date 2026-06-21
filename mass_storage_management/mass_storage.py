@@ -49,3 +49,12 @@ def calculate_look(queue, head):
     path.extend(right)
     path.extend(reversed(left))
     return path, calc_movement(path)
+
+def calculate_clook(queue, head):
+    path = [head]
+    left = sorted([x for x in queue if x < head])
+    right = sorted([x for x in queue if x >= head])
+
+    path.extend(right)
+    path.extend(left)
+    return path, calc_movement(path)

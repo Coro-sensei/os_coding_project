@@ -121,3 +121,8 @@ tk.Label(frame_inputs, text="Initial Head:").grid(row=1, column=0, padx=5, pady=
 entry_head = tk.Entry(frame_inputs, width=10)
 entry_head.grid(row=1, column=1, sticky="w", padx=5, pady=5)
 entry_head.insert(0, "53")
+
+tk.Label(frame_inputs, text="Algorithm: ").grid(row=2, column=0, padx=5, pady=5)
+combo_algo = ttk.Combobox(frame_inputes, values=["FCFS", "SSTF", "SCAN", "C-SCAN", "LOOK", "C-LOOK"], state="readonly")
+combo_algo.grid(row=2, column=1, sticky="w", padx=5, pady=5)
+combo_algo.current(0)

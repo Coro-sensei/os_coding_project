@@ -18,3 +18,14 @@ def calculate_sstf(queue, head):
         unvisited.remove(closest)
         current = closest
     return path, calc_movement(path)
+
+def calculate_scan(queue, head, max_track=199):
+    path = [head]
+    left = sorted([x for x in queue if x < head])
+    right = sorted([x for x in queue if x >= head])
+
+    path.extend(right)
+    if right and right[-1] != max_track:
+        path.append(max_track)
+    path.extend(reversed(left))
+    return path, calc_movement(path)

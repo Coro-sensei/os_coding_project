@@ -132,3 +132,6 @@ btn_run.pack(pady=5)
 
 lbl_result = tk.Label(root, text="Total Movement: -- \nPath: --", font=("Arial", 10, "bold"), wraplength=600)
 lbl_result.pack(pady=10)
+
+canvas = tk.Canvas(root, width=550, height=350, bg="white", relief=tk.SUNKEN, bd=2)
+canvas.pack(pady=10)

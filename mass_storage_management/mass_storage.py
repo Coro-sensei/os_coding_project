@@ -76,3 +76,6 @@ def draw_graph(path):
 
         canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="red")
         canvas.create_text(x, y - 10, text=str(track), font=("Arial", 8))
+
+        for i in range(len(points) - 1):
+            canvas.create_line(points[i][0], points[i][1], points[i + 1][0], points[i + 1][1], fill="blue", width=2)

@@ -132,7 +132,14 @@ def draw_gantt(timeline):
     top = " ┌" + "".join("─" * w + "┬" for w in widths)
     print(top[:-1] + "┐")
 
+    row = " │"
+    for (pid, s, e), w in zip(timeline, widths):
+        label =(pid or 'IDLE').center(w)[:w]
+        row += proc_color(pid) + label + C.reset + "│"
+    print(row)
 
+    bot =  "  └" + "".join("─" * w + "┴" for w in widths)
+    print(bot[:-1] + "┘")
 
 if __name__ == "__main__":
     main()

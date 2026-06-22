@@ -145,5 +145,41 @@ def draw_gantt(timeline):
     print(C.bblack+labels + C.reset)
     print()
 
+
+# Results table
+
+def draw_results(processes):
+    section("Process Results")
+    hdr = (f"  {'PID':<6}{'Arrival':<10}{'Burst':<8}" f"{'Finish':<10}{'Turnaround':<13}{'Waiting':<10}{'Response':<10}")
+    print(C.bold +C.bwhite + hdr + C.reset)
+    hr('-', C.bwhite)
+    tot_ta = tot_wt = tot_rt = 0
+    for p in sorted(processes, key=lambda x: x.pid):
+        col = proc_color(p.pid)
+        pid_str = col + C.BOLD + f" {p.pid}" + C.RESET
+        print(f"  {pid_str:<20}{p.arrival:<10}{p.burst:<8}"
+            f"{p.finish_time:<10}{p.turnaround_time:<13}"
+            f"{p.waiting_time:<10}{p.response_time:<10}")
+        tot_ta += p.turnaround_time
+        tot_wt += p.waiting_time
+        tot_rt += p.response_time
+
+    n = len(processes)
+    hr("·", C.BBLACK)
+    avg_ta = tot_ta / n
+    avg_wt = tot_wt / n
+    avg_rt = tot_rt / n
+    print(f"  {C.BOLD}{'Averages':<6}{'':<10}{'':<8}{'':<10}"
+        f"{avg_ta:<13.2f}{avg_wt:<10.2f}{avg_rt:<10.2f}{C.RESET}")
+    print()
+    return avg_wt, avg_ta, avg_rt
+
+# Finish calculations
+def finalise(processes):
+    for p in processes:
+        p.turnaround_time = p.finish_time - p.arrival
+        p.waiting_time    = p.turnaround_time - p.burst
+        if p.response_time is None:
+            p.response_time = p.waiting_time
 if __name__ == "__main__":
     main()

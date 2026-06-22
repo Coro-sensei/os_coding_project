@@ -13,9 +13,9 @@ class LRUApproxSimulator:
 	- On a HIT: set R = 1 for that page (mark it "recently used").
 	- On a FAULT with free space: insert page, R = 1, advance pointer.
 	- On a FAULT with frames full: a circular "clock hand" pointer scans
-	  frames. If R == 1, give it a "second chance" -> set R = 0 and move
-	  the hand forward (don't evict yet). If R == 0, evict that page,
-	  insert the new one (R = 1), and move the hand past it.
+	frames. If R == 1, give it a "second chance" -> set R = 0 and move
+	the hand forward (don't evict yet). If R == 0, evict that page,
+	insert the new one (R = 1), and move the hand past it.
 	"""
 
 	def __init__(self, root):
@@ -25,7 +25,7 @@ class LRUApproxSimulator:
 
 		# Title
 		tk.Label(root, text="LRU Approximation (Second-Chance / Clock)",
-				 font=("Arial", 16, "bold")).pack(pady=10)
+				font=("Arial", 16, "bold")).pack(pady=10)
 
 		# Frame input
 		frame_input = tk.Frame(root)
@@ -42,7 +42,7 @@ class LRUApproxSimulator:
 
 		# Run button
 		tk.Button(root, text="Run Simulation", command=self.run_lru_approx,
-				  bg="darkorange", fg="white").pack(pady=10)
+				bg="darkorange", fg="white").pack(pady=10)
 
 		# Output box
 		self.output = tk.Text(root, height=20, width=80)

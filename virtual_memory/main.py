@@ -32,12 +32,12 @@ class MenuApp:
         self.root.resizable(False, False)
 
         title = tk.Label(root, text="Page Replacement Simulator Menu",
-                         font=("Arial", 20, "bold"))
+                        font=("Arial", 20, "bold"))
         title.pack(pady=(20, 10))
 
         description = tk.Label(root,
-                               text="Select a simulation and click Run to open the simulator window.",
-                               font=("Arial", 12), wraplength=560, justify="center")
+                            text="Select a simulation and click Run to open the simulator window.",
+                            font=("Arial", 12), wraplength=560, justify="center")
         description.pack(pady=(0, 15))
 
         self.selected_simulation = tk.StringVar(value=SIMULATIONS[0][0])
@@ -47,19 +47,19 @@ class MenuApp:
 
         for name, _ in SIMULATIONS:
             tk.Radiobutton(radio_frame,
-                           text=name,
-                           variable=self.selected_simulation,
-                           value=name,
-                           anchor="w",
-                           justify="left",
-                           width=35,
-                           padx=4).pack(anchor="w", pady=2)
+                        text=name,
+                        variable=self.selected_simulation,
+                        value=name,
+                        anchor="w",
+                        justify="left",
+                        width=35,
+                        padx=4).pack(anchor="w", pady=2)
 
         self.detail_label = tk.Label(root,
-                                     text=SIMULATION_DESCRIPTIONS[self.selected_simulation.get()],
-                                     font=("Arial", 11),
-                                     wraplength=560,
-                                     justify="center")
+                                    text=SIMULATION_DESCRIPTIONS[self.selected_simulation.get()],
+                                    font=("Arial", 11),
+                                    wraplength=560,
+                                    justify="center")
         self.detail_label.pack(pady=(10, 0))
 
         self.selected_simulation.trace_add("write", self.update_description)
@@ -68,13 +68,13 @@ class MenuApp:
         button_frame.pack(pady=20)
 
         tk.Button(button_frame, text="Run Selected Simulation", command=self.open_simulation,
-                  bg="#4CAF50", fg="white", padx=12, pady=8).grid(row=0, column=0, padx=5)
+                bg="#4CAF50", fg="white", padx=12, pady=8).grid(row=0, column=0, padx=5)
         tk.Button(button_frame, text="Quit", command=self.root.quit,
-                  bg="#f44336", fg="white", padx=12, pady=8).grid(row=0, column=1, padx=5)
+                bg="#f44336", fg="white", padx=12, pady=8).grid(row=0, column=1, padx=5)
 
         footer = tk.Label(root,
-                          text="Built for FIFO, LRU, LRU Approximation, Optimal, and Counting-Based simulations.",
-                          font=("Arial", 9), wraplength=560)
+                        text="Built for FIFO, LRU, LRU Approximation, Optimal, and Counting-Based simulations.",
+                        font=("Arial", 9), wraplength=560)
         footer.pack(side="bottom", pady=10)
 
     def update_description(self, *args):

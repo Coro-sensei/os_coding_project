@@ -5,15 +5,15 @@ MAX_REFERENCES = 20
 MAX_FRAMES = 10
 
 
-class FIFOSimulator:
+class LRUSimulator:
 	def __init__(self, root):
 		self.root = root
-		self.root.title("FIFO Page Replacement Simulator")
+		self.root.title("LRU Page Replacement Simulator")
 		self.root.geometry("700x600")
 
 		# Title
-		tk.Label(root, text="FIFO Page Replacement Simulator",
-				 font=("Arial", 16, "bold")).pack(pady=10)
+		tk.Label(root, text="LRU Page Replacement Simulator",
+				font=("Arial", 16, "bold")).pack(pady=10)
 
 		# Frame input
 		frame_input = tk.Frame(root)
@@ -29,14 +29,14 @@ class FIFOSimulator:
 		self.ref_entry.pack(pady=5)
 
 		# Run button
-		tk.Button(root, text="Run Simulation", command=self.run_fifo,
-				  bg="green", fg="white").pack(pady=10)
+		tk.Button(root, text="Run Simulation", command=self.run_lru,
+				bg="purple", fg="white").pack(pady=10)
 
 		# Output box
 		self.output = tk.Text(root, height=20, width=80)
 		self.output.pack(pady=10)
 
-	def run_fifo(self):
+	def run_lru(self):
 		self.output.delete("1.0", tk.END)
 
 		# Validate frames
@@ -59,39 +59,53 @@ class FIFOSimulator:
 			return
 
 		frames = []
+		# last_used[page] = the most recent index (i) at which that page was referenced
+		last_used = {}
 		page_faults = 0
 		self.steps_queue = []
 
-		self.output.insert(tk.END, "FIFO Simulation Steps:\n")
+		self.output.insert(tk.END, "LRU Simulation Steps:\n")
 		self.output.insert(tk.END, "-" * 50 + "\n")
 
-		# ✅ FIXED LOOP (THIS WAS BROKEN IN YOUR CODE)
 		for i, page in enumerate(ref_string, 1):
 
 			prev_frames = frames.copy()
+			victim = None
+			change_type = "No Change"
 
 			if page not in frames:
 				page_faults += 1
 
 				if len(frames) < frames_count:
 					frames.append(page)
+					change_type = "Inserted"
 				else:
-					frames.pop(0)
-					frames.append(page)
+					# Find the page in frames that was used LEAST recently
+					# i.e. has the smallest "last_used" timestamp.
+					victim = min(frames, key=lambda p: last_used.get(p, -1))
+					victim_pos = frames.index(victim)
+					frames[victim_pos] = page
+					change_type = f"Replaced {victim} (least recently used)"
 
 				status = "FAULT"
-				change_type = "Inserted/Replaced"
 			else:
 				status = "HIT"
-				change_type = "No Change"
 
-			# build animation steps properly
+			# update recency timestamp for the page just referenced
+			last_used[page] = i
+
+			# build animation steps
 			self.steps_queue.append((f"\nStep {i}", 300))
 			self.steps_queue.append((f"Incoming Page: {page}", 300))
 			self.steps_queue.append((f"Previous Frames: {prev_frames}", 300))
 
+			if victim is not None:
+				recency_snapshot = {p: last_used.get(p, -1) for p in prev_frames}
+				self.steps_queue.append((f"Recency (last used at step): {recency_snapshot}", 300))
+				self.steps_queue.append((f"Victim Chosen: {victim}", 300))
+
 			if prev_frames != frames:
-				self.steps_queue.append((f"Updated Frames: {frames}  ({change_type})", 400))
+				self.steps_queue.append((f"Updated Frames: {frames} ⚡ ({change_type})", 400))
 			else:
 				self.steps_queue.append((f"Frames Unchanged: {frames}", 400))
 
@@ -102,7 +116,8 @@ class FIFOSimulator:
 		self.animate_steps(self.steps_queue)
 
 		# final stats (delayed so UI doesn't feel frozen)
-		self.root.after(len(self.steps_queue) * 400, lambda: self.show_results(ref_string, page_faults))
+		total_delay = sum(delay for _, delay in self.steps_queue)
+		self.root.after(total_delay, lambda: self.show_results(ref_string, page_faults))
 
 	def animate_steps(self, steps, index=0):
 		if index >= len(steps):
@@ -127,9 +142,10 @@ class FIFOSimulator:
 		self.output.insert(tk.END, f"Page Faults: {page_faults}\n")
 		self.output.insert(tk.END, f"Hit Ratio: {hit_ratio:.2f}\n")
 		self.output.insert(tk.END, f"Fault Ratio: {fault_ratio:.2f}\n")
+		self.output.see(tk.END)
 
 
 if __name__ == "__main__":
 	root = tk.Tk()
-	app = FIFOSimulator(root)
+	app = LRUSimulator(root)
 	root.mainloop()

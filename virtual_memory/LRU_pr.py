@@ -13,7 +13,7 @@ class LRUSimulator:
 
 		# Title
 		tk.Label(root, text="LRU Page Replacement Simulator",
-				 font=("Arial", 16, "bold")).pack(pady=10)
+				font=("Arial", 16, "bold")).pack(pady=10)
 
 		# Frame input
 		frame_input = tk.Frame(root)
@@ -30,7 +30,7 @@ class LRUSimulator:
 
 		# Run button
 		tk.Button(root, text="Run Simulation", command=self.run_lru,
-				  bg="purple", fg="white").pack(pady=10)
+				bg="purple", fg="white").pack(pady=10)
 
 		# Output box
 		self.output = tk.Text(root, height=20, width=80)

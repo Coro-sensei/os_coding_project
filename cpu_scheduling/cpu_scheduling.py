@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 
 
-# ---------------- PROCESS CLASS ----------------
+#  PROCESS CLASS 
 class Process:
     def __init__(self, pid, arrival, burst, priority=0):
         self.pid = pid
@@ -20,7 +20,7 @@ class Process:
         self.response = -1
 
 
-# ---------------- CPU SCHEDULER ----------------
+#  CPU SCHEDULER 
 class Scheduler:
 
     def reset_processes(self, processes):
@@ -219,7 +219,7 @@ class Scheduler:
         return timeline
 
 
-# ---------------- GUI ----------------
+# GUI 
 class App:
     def __init__(self, root):
         self.root = root
@@ -353,7 +353,7 @@ class App:
         self.canvas.create_text(x, 110, text=str(timeline[-1][2]))
 
 
-# ---------------- MAIN ----------------
+#  MAIN 
 root = tk.Tk()
 app = App(root)
 root.mainloop()

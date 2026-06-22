@@ -2,15 +2,17 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 
 
-# PROCESS CLASS 
+# ---------------- PROCESS CLASS ----------------
 class Process:
     def __init__(self, pid, arrival, burst, priority=0):
         self.pid = pid
         self.arrival = arrival
         self.burst = burst
         self.priority = priority
-        self.remaining = burst
+        self.reset()
 
+    def reset(self):
+        self.remaining = self.burst
         self.start = None
         self.finish = None
         self.waiting = 0
@@ -18,11 +20,16 @@ class Process:
         self.response = -1
 
 
-# CPU SCHEDULER 
+# ---------------- CPU SCHEDULER ----------------
 class Scheduler:
+
+    def reset_processes(self, processes):
+        for p in processes:
+            p.reset()
 
     # FCFS
     def fcfs(self, processes):
+        self.reset_processes(processes)
         time = 0
         timeline = []
 
@@ -33,11 +40,10 @@ class Scheduler:
                 time = p.arrival
 
             p.start = time
-            p.response = p.start - p.arrival
+            p.response = time - p.arrival
 
             time += p.burst
             p.finish = time
-
             p.turnaround = p.finish - p.arrival
             p.waiting = p.turnaround - p.burst
 
@@ -45,8 +51,9 @@ class Scheduler:
 
         return timeline
 
-    # Non-preemptive SJF
+    # SJF
     def sjf(self, processes):
+        self.reset_processes(processes)
         time = 0
         completed = []
         timeline = []
@@ -65,7 +72,6 @@ class Scheduler:
 
             time += current.burst
             current.finish = time
-
             current.turnaround = current.finish - current.arrival
             current.waiting = current.turnaround - current.burst
 
@@ -74,8 +80,9 @@ class Scheduler:
 
         return timeline
 
-    # Preemptive SJF (SRTF)
+    # SRTF
     def srtf(self, processes):
+        self.reset_processes(processes)
         time = 0
         complete = 0
         timeline = []
@@ -99,7 +106,7 @@ class Scheduler:
 
             if current.remaining == 0:
                 current.finish = time
-                current.turnaround = current.finish - current.arrival
+                current.turnaround = time - current.arrival
                 current.waiting = current.turnaround - current.burst
                 complete += 1
 
@@ -107,8 +114,9 @@ class Scheduler:
 
         return timeline
 
-    # Priority Non-preemptive
+    # Priority Non-Preemptive
     def priority_np(self, processes):
+        self.reset_processes(processes)
         time = 0
         completed = []
         timeline = []
@@ -127,8 +135,7 @@ class Scheduler:
 
             time += current.burst
             current.finish = time
-
-            current.turnaround = current.finish - current.arrival
+            current.turnaround = time - current.arrival
             current.waiting = current.turnaround - current.burst
 
             completed.append(current)
@@ -138,6 +145,7 @@ class Scheduler:
 
     # Priority Preemptive
     def priority_p(self, processes):
+        self.reset_processes(processes)
         time = 0
         complete = 0
         timeline = []
@@ -161,7 +169,7 @@ class Scheduler:
 
             if current.remaining == 0:
                 current.finish = time
-                current.turnaround = current.finish - current.arrival
+                current.turnaround = time - current.arrival
                 current.waiting = current.turnaround - current.burst
                 complete += 1
 
@@ -171,6 +179,11 @@ class Scheduler:
 
     # Round Robin
     def round_robin(self, processes, quantum):
+        self.reset_processes(processes)
+
+        if not processes:
+            return []
+
         time = 0
         queue = []
         timeline = []
@@ -193,20 +206,20 @@ class Scheduler:
             timeline.append((current.pid, start, time))
 
             for p in processes:
-                if p.arrival <= time and p not in queue and p.remaining > 0 and p != current:
+                if p.arrival <= time and p.remaining > 0 and p not in queue and p != current:
                     queue.append(p)
 
             if current.remaining > 0:
                 queue.append(current)
             else:
                 current.finish = time
-                current.turnaround = current.finish - current.arrival
+                current.turnaround = time - current.arrival
                 current.waiting = current.turnaround - current.burst
 
         return timeline
 
 
-#  GUI 
+# ---------------- GUI ----------------
 class App:
     def __init__(self, root):
         self.root = root
@@ -214,7 +227,6 @@ class App:
         self.scheduler = Scheduler()
         self.processes = []
 
-        # Input frame
         frame = tk.Frame(root)
         frame.pack(pady=10)
 
@@ -232,59 +244,77 @@ class App:
 
         tk.Button(frame, text="Add Process", command=self.add_process).grid(row=1, column=3)
 
-        # Algorithm selector
         self.algorithm = ttk.Combobox(root, values=[
-            "FCFS",
-            "SJF",
-            "SRTF",
-            "Priority NP",
-            "Priority P",
+            "FCFS", "SJF", "SRTF",
+            "Priority NP", "Priority P",
             "Round Robin"
         ])
         self.algorithm.pack()
+        self.algorithm.current(0)
 
         self.quantum_entry = tk.Entry(root)
         self.quantum_entry.pack()
-        self.quantum_entry.insert(0, "Quantum (RR only)")
 
         tk.Button(root, text="Run Simulation", command=self.run).pack(pady=10)
 
-        # Table
-        self.tree = ttk.Treeview(root, columns=("PID", "AT", "BT", "WT", "TAT"))
+        self.tree = ttk.Treeview(
+            root,
+            columns=("PID", "AT", "BT", "WT", "TAT"),
+            show="headings"
+        )
         self.tree.pack()
 
         for col in ("PID", "AT", "BT", "WT", "TAT"):
             self.tree.heading(col, text=col)
 
-        # Gantt Chart Canvas
         self.canvas = tk.Canvas(root, width=800, height=200, bg="white")
         self.canvas.pack()
 
     def add_process(self):
-        pid = f"P{len(self.processes)+1}"
-        arrival = int(self.arrival_entry.get())
-        burst = int(self.burst_entry.get())
-        priority = int(self.priority_entry.get())
+        try:
+            pid = f"P{len(self.processes)+1}"
+            arrival = int(self.arrival_entry.get())
+            burst = int(self.burst_entry.get())
 
-        self.processes.append(Process(pid, arrival, burst, priority))
+            priority = self.priority_entry.get()
+            priority = int(priority) if priority else 0
 
-        messagebox.showinfo("Success", f"{pid} added!")
+            self.processes.append(Process(pid, arrival, burst, priority))
+
+            messagebox.showinfo("Success", f"{pid} added!")
+
+        except ValueError:
+            messagebox.showerror("Error", "Enter valid numbers.")
 
     def run(self):
+        if not self.processes:
+            messagebox.showerror("Error", "No processes added.")
+            return
+
         algo = self.algorithm.get()
 
         if algo == "FCFS":
             timeline = self.scheduler.fcfs(self.processes)
+
         elif algo == "SJF":
             timeline = self.scheduler.sjf(self.processes)
+
         elif algo == "SRTF":
             timeline = self.scheduler.srtf(self.processes)
+
         elif algo == "Priority NP":
             timeline = self.scheduler.priority_np(self.processes)
+
         elif algo == "Priority P":
             timeline = self.scheduler.priority_p(self.processes)
+
         elif algo == "Round Robin":
-            q = int(self.quantum_entry.get())
+            try:
+                q = int(self.quantum_entry.get())
+            except ValueError:
+                messagebox.showerror("Error", "Enter valid quantum.")
+                return
+
             timeline = self.scheduler.round_robin(self.processes, q)
 
         self.show_results()
@@ -296,27 +326,34 @@ class App:
 
         for p in self.processes:
             self.tree.insert("", "end", values=(
-                p.pid, p.arrival, p.burst,
-                p.waiting, p.turnaround
+                p.pid,
+                p.arrival,
+                p.burst,
+                p.waiting,
+                p.turnaround
             ))
 
     def draw_gantt(self, timeline):
         self.canvas.delete("all")
 
+        if not timeline:
+            return
+
         x = 20
+
         for pid, start, end in timeline:
             width = (end - start) * 40
 
             self.canvas.create_rectangle(x, 50, x + width, 100)
             self.canvas.create_text(x + width / 2, 75, text=pid)
-
             self.canvas.create_text(x, 110, text=str(start))
+
             x += width
 
         self.canvas.create_text(x, 110, text=str(timeline[-1][2]))
 
 
-#  MAIN 
+# ---------------- MAIN ----------------
 root = tk.Tk()
 app = App(root)
 root.mainloop()

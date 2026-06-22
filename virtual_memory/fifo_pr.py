@@ -30,7 +30,7 @@ class FIFOSimulator:
 
 		# Run button
 		tk.Button(root, text="Run Simulation", command=self.run_fifo,
-				  bg="green", fg="white").pack(pady=10)
+				bg="green", fg="white").pack(pady=10)
 
 		# Output box
 		self.output = tk.Text(root, height=20, width=80)

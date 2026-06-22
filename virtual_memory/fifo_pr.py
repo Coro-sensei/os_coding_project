@@ -13,7 +13,7 @@ class FIFOSimulator:
 
 		# Title
 		tk.Label(root, text="FIFO Page Replacement Simulator",
-				 font=("Arial", 16, "bold")).pack(pady=10)
+				font=("Arial", 16, "bold")).pack(pady=10)
 
 		# Frame input
 		frame_input = tk.Frame(root)

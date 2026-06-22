@@ -141,5 +141,9 @@ def draw_gantt(timeline):
     bot =  "  └" + "".join("─" * w + "┴" for w in widths)
     print(bot[:-1] + "┘")
 
+    labels =  "  " + "".join(str(s).ljust(w) for (_, s, _), w in zip(timeline, widths))
+    print(C.bblack+labels + C.reset)
+    print()
+
 if __name__ == "__main__":
     main()

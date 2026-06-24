@@ -6,7 +6,7 @@ class MassStorageGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Mass Storage Management")
-        self.root.geometry("950x700")
+        self.root.geometry("950x750")
 
         self.setup_gui()
 
@@ -36,12 +36,38 @@ class MassStorageGUI:
         self.head_entry = tk.Entry(self.root, width=20)
         self.head_entry.pack(pady=5)
 
+        # Scheduling algorithm selection
+        tk.Label(
+            self.root,
+            text="Select Scheduling Algorithm:"
+        ).pack()
+
+        self.algorithm_var = tk.StringVar(value="FCFS")
+        algorithms = ["FCFS", "SSTF", "SCAN", "C-SCAN", "LOOK", "CLOOK"]
+        tk.OptionMenu(
+            self.root,
+            self.algorithm_var,
+            *algorithms
+        ).pack(pady=5)
+
+        # Optional disk size input for SCAN/C-SCAN
+        tk.Label(
+            self.root,
+            text="Enter Disk Size (optional):"
+        ).pack()
+
+        self.disk_size_entry = tk.Entry(self.root, width=20)
+        self.disk_size_entry.pack(pady=5)
+
         # Run button
         tk.Button(
             self.root,
             text="Run Simulation",
             command=self.run_simulation
         ).pack(pady=10)
+
+        self.result_label = tk.Label(self.root, text="", font=("Arial", 10))
+        self.result_label.pack(pady=5)
 
         # Canvas
         self.canvas = tk.Canvas(
@@ -57,17 +83,79 @@ class MassStorageGUI:
             requests = [
                 int(x.strip())
                 for x in self.request_entry.get().split(",")
+                if x.strip() != ""
             ]
 
             head = int(self.head_entry.get())
+            disk_size_text = self.disk_size_entry.get().strip()
+            disk_size = int(disk_size_text) if disk_size_text else None
+            algorithm = self.algorithm_var.get()
 
-            self.show_graph(requests, head)
+            sequence = self.compute_sequence(requests, head, algorithm, disk_size)
+            self.show_graph(sequence, algorithm)
 
         except ValueError:
             messagebox.showerror(
                 "Error",
                 "Please enter valid numbers."
             )
+
+    def compute_sequence(self, requests, head, algorithm, disk_size=None):
+        if algorithm == "FCFS":
+            return [head] + requests
+
+        if algorithm == "SSTF":
+            return [head] + self.sstf_sequence(head, requests)
+
+        if algorithm == "SCAN":
+            return [head] + self.scan_sequence(head, requests, disk_size, circular=False, look=False)
+
+        if algorithm == "C-SCAN":
+            return [head] + self.scan_sequence(head, requests, disk_size, circular=True, look=False)
+
+        if algorithm == "LOOK":
+            return [head] + self.scan_sequence(head, requests, disk_size, circular=False, look=True)
+
+        if algorithm == "CLOOK":
+            return [head] + self.scan_sequence(head, requests, disk_size, circular=True, look=True)
+
+        return [head] + requests
+
+    def sstf_sequence(self, head, requests):
+        remaining = list(requests)
+        current = head
+        sequence = []
+
+        while remaining:
+            next_track = min(remaining, key=lambda x: abs(x - current))
+            sequence.append(next_track)
+            remaining.remove(next_track)
+            current = next_track
+
+        return sequence
+
+    def scan_sequence(self, head, requests, disk_size, circular, look):
+        if not requests:
+            return []
+
+        sorted_requests = sorted(requests)
+        left = [r for r in sorted_requests if r < head]
+        right = [r for r in sorted_requests if r >= head]
+
+        if look:
+            if circular:
+                return right + left
+            return right + left[::-1]
+
+        if circular:
+            if right:
+                return right + left
+            return left
+
+        if right:
+            return right + left[::-1]
+
+        return left[::-1]
 
     def show_graph(self, requests, head):
         self.canvas.delete("all")

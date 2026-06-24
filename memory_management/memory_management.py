@@ -12,7 +12,7 @@ class CompleteMemoryGUI:
         self.setup_gui()
 
     def setup_gui(self):
-        # [UI elements remain identical]
+        # UI elements 
         left_frame = tk.Frame(self.root, padx=15, pady=15)
         left_frame.pack(side=tk.LEFT, fill=tk.Y)
         tk.Label(left_frame, text="Memory Architecture:", font=("Arial", 10, "bold")).pack(anchor=tk.W)
@@ -189,7 +189,7 @@ class CompleteMemoryGUI:
         self.update_queue_textbox()
         self.draw_memory()
 
-    # --- CORE IMPLEMENTATION FOR MILESTONE 4 ---
+    
     def terminate_process(self):
         target_pid = self.entry_terminate.get().strip().upper()
         if not target_pid:

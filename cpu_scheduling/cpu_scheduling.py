@@ -353,7 +353,12 @@ class App:
         self.canvas.create_text(x, 110, text=str(timeline[-1][2]))
 
 
-#  MAIN 
-root = tk.Tk()
-app = App(root)
-root.mainloop()
+#  MAIN
+def main():
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()

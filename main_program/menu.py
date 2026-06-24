@@ -2,21 +2,25 @@ import tkinter as tk
 import sys
 import os
 
-# Get current folder (main_program)
+# Project root
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Get project root
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
 
-# Add module folders to path
-sys.path.append(os.path.join(project_root, "cpu_scheduling"))
-sys.path.append(os.path.join(project_root, "memory_management"))
-sys.path.append(os.path.join(project_root, "mass_storage_management"))
-sys.path.append(os.path.join(project_root, "virtual_memory"))
+# Add folders
+folders = [
+    "cpu_scheduling",
+    "memory_management",
+    "mass_storage_management",
+    "virtual_memory"
+]
 
-# Import modules
+for folder in folders:
+    sys.path.insert(0, os.path.join(project_root, folder))
+
+# Imports
 import cpu_scheduling
 import memory_management
+sys.path.append(os.path.join(project_root, "mass_storage_management"))
 import mass_storage
 import main as virtual_memory
 
@@ -41,7 +45,7 @@ def run_virtual():
     virtual_memory.main()
 
 
-# Main Menu Window
+# Main menu
 root = tk.Tk()
 root.title("Operating System Simulator")
 root.geometry("500x450")
@@ -60,7 +64,6 @@ tk.Button(root, text="Memory Management", width=30, height=2, command=run_memory
 tk.Button(root, text="Mass Storage Management", width=30, height=2, command=run_storage).pack(pady=10)
 tk.Button(root, text="Virtual Memory", width=30, height=2, command=run_virtual).pack(pady=10)
 
-# Exit
-tk.Button(root, text="Exit", width=30, height=2, bg="red", fg="white", command=root.quit).pack(pady=20)
+tk.Button(root, text="Exit", width=30, height=2, command=root.quit).pack(pady=20)
 
-root.mainloop() 
+root.mainloop()

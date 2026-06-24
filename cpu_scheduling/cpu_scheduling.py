@@ -1,3 +1,4 @@
+from logging import root
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -245,13 +246,13 @@ class App:
         tk.Button(frame, text="Add Process", command=self.add_process).grid(row=1, column=3)
 
         self.algorithm = ttk.Combobox(root, values=[
-            "FCFS", "SJF", "SRTF",
-            "Priority NP", "Priority P",
-            "Round Robin"
-        ])
+                "FCFS", "SJF", "SRTF",
+                "Priority NP", "Priority P",
+                "Round Robin"
+                ])
         self.algorithm.pack()
         self.algorithm.current(0)
-
+        tk.Label(root, text="Quanta").pack()
         self.quantum_entry = tk.Entry(root)
         self.quantum_entry.pack()
 
@@ -347,7 +348,7 @@ class App:
             self.canvas.create_rectangle(x, 50, x + width, 100)
             self.canvas.create_text(x + width / 2, 75, text=pid)
             self.canvas.create_text(x, 110, text=str(start))
-
+    
             x += width
 
         self.canvas.create_text(x, 110, text=str(timeline[-1][2]))

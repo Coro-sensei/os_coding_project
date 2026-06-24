@@ -1,33 +1,30 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 
 
 class MassStorageGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Mass Storage Management")
-        self.root.geometry("950x750")
+        self.root.state("zoomed")
 
         self.setup_gui()
 
     def setup_gui(self):
-        # Title
         tk.Label(
             self.root,
             text="Mass Storage Management Simulator",
-            font=("Arial", 16, "bold")
+            font=("Arial", 20, "bold")
         ).pack(pady=10)
 
-        # Disk request input
         tk.Label(
             self.root,
             text="Enter Disk Requests (comma separated):"
         ).pack()
 
-        self.request_entry = tk.Entry(self.root, width=50)
+        self.request_entry = tk.Entry(self.root, width=70)
         self.request_entry.pack(pady=5)
 
-        # Initial head position
         tk.Label(
             self.root,
             text="Enter Initial Head Position:"
@@ -36,88 +33,126 @@ class MassStorageGUI:
         self.head_entry = tk.Entry(self.root, width=20)
         self.head_entry.pack(pady=5)
 
-        # Scheduling algorithm selection
         tk.Label(
             self.root,
-            text="Select Scheduling Algorithm:"
+            text="Select Scheduling Algorithm:",
+            font=("Arial", 12, "bold")
         ).pack()
 
-        self.algorithm_var = tk.StringVar(value="FCFS")
-        algorithms = ["FCFS", "SSTF", "SCAN", "C-SCAN", "LOOK", "CLOOK"]
-        tk.OptionMenu(
-            self.root,
-            self.algorithm_var,
-            *algorithms
-        ).pack(pady=5)
+        self.algorithm_var = tk.StringVar()
 
-        # Optional disk size input for SCAN/C-SCAN
+        self.algorithm_picker = ttk.Combobox(
+            self.root,
+            textvariable=self.algorithm_var,
+            values=["FCFS", "SSTF", "SCAN", "C-SCAN", "LOOK", "CLOOK"],
+            state="readonly"
+        )
+        self.algorithm_picker.pack(pady=5)
+        self.algorithm_picker.current(0)
+
         tk.Label(
             self.root,
-            text="Enter Disk Size (optional):"
+            text="Enter Disk Size (for SCAN / C-SCAN):"
         ).pack()
 
         self.disk_size_entry = tk.Entry(self.root, width=20)
         self.disk_size_entry.pack(pady=5)
 
-        # Run button
         tk.Button(
             self.root,
             text="Run Simulation",
             command=self.run_simulation
         ).pack(pady=10)
 
-        self.result_label = tk.Label(self.root, text="", font=("Arial", 10))
-        self.result_label.pack(pady=5)
+        # Scrollable frame
+        canvas_frame = tk.Frame(self.root)
+        canvas_frame.pack(fill="both", expand=True)
 
-        # Canvas
-        self.canvas = tk.Canvas(
-            self.root,
-            width=900,
-            height=500,
-            bg="white"
+        self.h_scroll = tk.Scrollbar(
+            canvas_frame,
+            orient="horizontal"
         )
-        self.canvas.pack(pady=20)
+        self.h_scroll.pack(side="bottom", fill="x")
+
+        self.v_scroll = tk.Scrollbar(
+            canvas_frame,
+            orient="vertical"
+        )
+        self.v_scroll.pack(side="right", fill="y")
+
+        self.canvas = tk.Canvas(
+            canvas_frame,
+            bg="white",
+            xscrollcommand=self.h_scroll.set,
+            yscrollcommand=self.v_scroll.set
+        )
+
+        self.canvas.pack(fill="both", expand=True)
+
+        self.h_scroll.config(command=self.canvas.xview)
+        self.v_scroll.config(command=self.canvas.yview)
 
     def run_simulation(self):
         try:
             requests = [
                 int(x.strip())
                 for x in self.request_entry.get().split(",")
-                if x.strip() != ""
+                if x.strip()
             ]
 
             head = int(self.head_entry.get())
+
             disk_size_text = self.disk_size_entry.get().strip()
             disk_size = int(disk_size_text) if disk_size_text else None
+
             algorithm = self.algorithm_var.get()
 
-            sequence = self.compute_sequence(requests, head, algorithm, disk_size)
-            self.show_graph(sequence, algorithm)
+            sequence = self.compute_sequence(
+                requests,
+                head,
+                algorithm,
+                disk_size
+            )
+
+            # Reset old graph
+            self.canvas.delete("all")
+            self.canvas.xview_moveto(0)
+            self.canvas.yview_moveto(0)
+
+            self.show_graph(sequence)
 
         except ValueError:
             messagebox.showerror(
                 "Error",
-                "Please enter valid numbers."
+                "Please enter valid numeric values."
             )
 
     def compute_sequence(self, requests, head, algorithm, disk_size=None):
         if algorithm == "FCFS":
             return [head] + requests
 
-        if algorithm == "SSTF":
+        elif algorithm == "SSTF":
             return [head] + self.sstf_sequence(head, requests)
 
-        if algorithm == "SCAN":
-            return [head] + self.scan_sequence(head, requests, disk_size, circular=False, look=False)
+        elif algorithm == "SCAN":
+            return [head] + self.scan_sequence(
+                head, requests, disk_size, False, False
+            )
 
-        if algorithm == "C-SCAN":
-            return [head] + self.scan_sequence(head, requests, disk_size, circular=True, look=False)
+        elif algorithm == "C-SCAN":
+            return [head] + self.scan_sequence(
+                head, requests, disk_size, True, False
+            )
 
-        if algorithm == "LOOK":
-            return [head] + self.scan_sequence(head, requests, disk_size, circular=False, look=True)
+        elif algorithm == "LOOK":
+            return [head] + self.scan_sequence(
+                head, requests, disk_size, False, True
+            )
 
-        if algorithm == "CLOOK":
-            return [head] + self.scan_sequence(head, requests, disk_size, circular=True, look=True)
+        elif algorithm == "CLOOK":
+            return [head] + self.scan_sequence(
+                head, requests, disk_size, True, True
+            )
 
         return [head] + requests
 
@@ -127,141 +162,139 @@ class MassStorageGUI:
         sequence = []
 
         while remaining:
-            next_track = min(remaining, key=lambda x: abs(x - current))
-            sequence.append(next_track)
-            remaining.remove(next_track)
-            current = next_track
+            nearest = min(
+                remaining,
+                key=lambda x: abs(x - current)
+            )
+            sequence.append(nearest)
+            remaining.remove(nearest)
+            current = nearest
 
         return sequence
 
-    def scan_sequence(self, head, requests, disk_size, circular, look):
+    def scan_sequence(self, head, requests, disk_size, circular=False, look=False):
         if not requests:
             return []
 
-        sorted_requests = sorted(requests)
-        left = [r for r in sorted_requests if r < head]
-        right = [r for r in sorted_requests if r >= head]
+        if disk_size is None:
+            disk_size = max(requests) + 1
 
-        if look:
-            if circular:
-                return right + left
-            return right + left[::-1]
+        requests = sorted(requests)
+
+        left = [r for r in requests if r < head]
+        right = [r for r in requests if r >= head]
+
+        sequence = []
 
         if circular:
-            if right:
-                return right + left
-            return left
+            if look:
+                sequence.extend(right)
+                sequence.extend(left)
+            else:
+                sequence.extend(right)
 
-        if right:
-            return right + left[::-1]
+                if sequence[-1] != disk_size - 1:
+                    sequence.append(disk_size - 1)
 
-        return left[::-1]
+                sequence.append(0)
+                sequence.extend(left)
 
-    def show_graph(self, requests, head):
-        self.canvas.delete("all")
+        else:
+            if look:
+                sequence.extend(right)
+                sequence.extend(reversed(left))
+            else:
+                sequence.extend(right)
 
-        sequence = [head] + requests
+                if sequence[-1] != disk_size - 1:
+                    sequence.append(disk_size - 1)
 
-        width = 850
-        height = 450
-        margin = 70
-        legend_space = 180
-        graph_width = width - legend_space
+                sequence.extend(reversed(left))
+
+        return sequence
+
+    def show_graph(self, sequence):
+        self.root.update_idletasks()
 
         max_track = max(sequence)
         min_track = min(sequence)
 
+        # Dynamic scrollable size
+        canvas_width = max(
+            self.canvas.winfo_width(),
+            (max_track - min_track) * 6 + 500
+        )
+
+        canvas_height = max(
+            self.canvas.winfo_height(),
+            len(sequence) * 100
+        )
+
+        self.canvas.config(
+            scrollregion=(0, 0, canvas_width, canvas_height)
+        )
+
+        left_margin = 150
+        right_margin = 150
+        top_margin = 80
+        bottom_margin = 80
+
+        graph_width = canvas_width - left_margin - right_margin
+        graph_height = canvas_height - top_margin - bottom_margin
+
         if max_track == min_track:
             max_track += 1
 
-        # Add padding so graph doesn't clip top/bottom
-        padding = (max_track - min_track) * 0.15
-        max_track += padding
-        min_track -= padding
+        value_range = max_track - min_track
+        padding = max(20, value_range * 0.15)
 
-        # Shift graph right so initial head doesn't overlap Y-axis
-        x_spacing = (graph_width - 2 * margin - 40) / (len(sequence) - 1)
-        start_offset = 20
+        scaled_max = max_track + padding
+        scaled_min = min_track - padding
+
+        y_spacing = graph_height / max(1, len(sequence) - 1)
 
         # Grid lines
         for i in range(6):
-            y = margin + i * ((height - 2 * margin) / 5)
+            x = left_margin + i * (graph_width / 5)
 
             self.canvas.create_line(
-                margin,
-                y,
-                graph_width - margin,
-                y,
-                fill="#d9d9d9",
+                x,
+                top_margin,
+                x,
+                top_margin + graph_height,
+                fill="#cccccc",
                 dash=(4, 2)
             )
 
-            track_value = max_track - ((max_track - min_track) / 5) * i
-
-            self.canvas.create_text(
-                margin - 35,
-                y,
-                text=str(int(track_value)),
-                font=("Arial", 9)
-            )
-
-        # X-axis labels
-        for i in range(len(sequence)):
-            x = margin + start_offset + i * x_spacing
+            value = scaled_min + (
+                (scaled_max - scaled_min) / 5
+            ) * i
 
             self.canvas.create_text(
                 x,
-                height - margin + 20,
-                text=str(i),
-                font=("Arial", 9)
+                top_margin + graph_height + 30,
+                text=str(int(value))
             )
-
-        # Axes
-        self.canvas.create_line(
-            margin,
-            margin,
-            margin,
-            height - margin,
-            width=2
-        )
-
-        self.canvas.create_line(
-            margin,
-            height - margin,
-            graph_width - margin,
-            height - margin,
-            width=2
-        )
-
-        # Axis titles
-        self.canvas.create_text(
-            graph_width // 2,
-            height - 20,
-            text="Request Order",
-            font=("Arial", 11, "bold")
-        )
-
-        self.canvas.create_text(
-            25,
-            height // 2,
-            text="Track Number",
-            angle=90,
-            font=("Arial", 11, "bold")
-        )
 
         points = []
 
-        # Compute graph points
         for i, track in enumerate(sequence):
-            x = margin + start_offset + i * x_spacing
+            x = left_margin + (
+                (track - scaled_min) /
+                (scaled_max - scaled_min)
+            ) * graph_width
 
-            y = height - margin - (
-                (track - min_track) / (max_track - min_track)
-            ) * (height - 2 * margin)
+            y = top_margin + i * y_spacing
 
             points.append((x, y))
 
-        # Draw movement lines
+            self.canvas.create_text(
+                left_margin - 40,
+                y,
+                text=str(i)
+            )
+
+        # Draw lines
         for i in range(len(points) - 1):
             self.canvas.create_line(
                 points[i][0],
@@ -269,73 +302,27 @@ class MassStorageGUI:
                 points[i + 1][0],
                 points[i + 1][1],
                 fill="red",
-                width=2,
-                smooth=True
+                width=2
             )
 
-        # Draw points
+        # Draw nodes
         for i, (x, y) in enumerate(points):
             color = "green" if i == 0 else "blue"
 
             self.canvas.create_oval(
-                x - 7,
-                y - 7,
-                x + 7,
-                y + 7,
-                fill=color,
-                outline="black"
+                x - 8,
+                y - 8,
+                x + 8,
+                y + 8,
+                fill=color
             )
 
             self.canvas.create_text(
-                x,
-                y - 18,
+                x + 30,
+                y,
                 text=str(sequence[i]),
-                font=("Arial", 9, "bold")
+                font=("Arial", 10, "bold")
             )
-
-        # Legend (outside graph)
-        legend_x1 = graph_width + 10
-        legend_y1 = 40
-        legend_x2 = width - 20
-        legend_y2 = 120
-
-        self.canvas.create_rectangle(
-            legend_x1,
-            legend_y1,
-            legend_x2,
-            legend_y2,
-            outline="black"
-        )
-
-        # Start position legend
-        self.canvas.create_oval(
-            legend_x1 + 15,
-            legend_y1 + 15,
-            legend_x1 + 30,
-            legend_y1 + 30,
-            fill="green"
-        )
-
-        self.canvas.create_text(
-            legend_x1 + 90,
-            legend_y1 + 22,
-            text="Start Position"
-        )
-
-        # Disk request legend
-        self.canvas.create_oval(
-            legend_x1 + 15,
-            legend_y1 + 50,
-            legend_x1 + 30,
-            legend_y1 + 65,
-            fill="blue"
-        )
-
-        self.canvas.create_text(
-            legend_x1 + 85,
-            legend_y1 + 57,
-            text="Disk Request"
-        )
 
 
 def main():

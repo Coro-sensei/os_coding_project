@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox
 
-class MemoryGUIMilestone3:
+class CompleteMemoryGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("OS Memory Visualizer - Milestone 3")
+        self.root.title("OS Memory Visualizer - Milestone 4 (Final)")
         self.os_size = 10  
         self.queue = []
         self.memory_blocks = [] 
@@ -12,7 +12,7 @@ class MemoryGUIMilestone3:
         self.setup_gui()
 
     def setup_gui(self):
-        # [UI setup remains identical]
+        # [UI elements remain identical]
         left_frame = tk.Frame(self.root, padx=15, pady=15)
         left_frame.pack(side=tk.LEFT, fill=tk.Y)
         tk.Label(left_frame, text="Memory Architecture:", font=("Arial", 10, "bold")).pack(anchor=tk.W)
@@ -70,6 +70,7 @@ class MemoryGUIMilestone3:
         self.entry_parts.insert(0, "10 6 4 4")
         self.entry_queue.delete(0, tk.END)
         self.entry_queue.insert(0, "2 3 4 5 6")
+        self.entry_terminate.delete(0, tk.END)
         self.queue = []
         self.memory_blocks = []
         self.process_counter = 1
@@ -104,7 +105,6 @@ class MemoryGUIMilestone3:
             self.log(f"MVT Loaded. Free User Space: {user_space}KB")
         self.draw_memory()
 
-    # --- CORE IMPLEMENTATION FOR MILESTONE 3 ---
     def allocate_next(self):
         if not self.memory_blocks:
             messagebox.showwarning("System Not Ready", "Please click 'Initialize System' first!")
@@ -189,6 +189,44 @@ class MemoryGUIMilestone3:
         self.update_queue_textbox()
         self.draw_memory()
 
+    # --- CORE IMPLEMENTATION FOR MILESTONE 4 ---
+    def terminate_process(self):
+        target_pid = self.entry_terminate.get().strip().upper()
+        if not target_pid:
+            messagebox.showwarning("Input Missing", "Please enter a process ID to terminate (e.g., P1).")
+            return
+            
+        found = False
+        for block in self.memory_blocks:
+            if not block["is_free"] and block["pid"] == target_pid:
+                block["is_free"] = True
+                block["process"] = ""
+                block["pid"] = ""
+                found = True
+                break
+                
+        if found:
+            self.log(f"Process {target_pid} terminated successfully.")
+            if self.arch_var.get() == "MVT":
+                self.merge_adjacent_mvt_holes()
+            self.entry_terminate.delete(0, tk.END)
+            self.draw_memory()
+        else:
+            messagebox.showwarning("Not Found", f"Process '{target_pid}' is not currently loaded in memory.")
+
+    def merge_adjacent_mvt_holes(self):
+        i = 0
+        merges_occurred = 0
+        while i < len(self.memory_blocks) - 1:
+            if self.memory_blocks[i]["is_free"] and self.memory_blocks[i+1]["is_free"]:
+                self.memory_blocks[i]["size"] += self.memory_blocks[i+1]["size"]
+                self.memory_blocks.pop(i+1)
+                merges_occurred += 1
+            else:
+                i += 1
+        if merges_occurred > 0:
+            self.log(f"MVT Coalescing Engine triggered: Merged adjacent free memory holes.")
+
     def draw_memory(self):
         self.canvas.delete("all")
         if not self.memory_blocks: return
@@ -211,13 +249,11 @@ class MemoryGUIMilestone3:
         else:
             for _ in range(num_items): heights.append(min_height)
             
-        # Draw OS
         os_pixel_height = heights[0]
         self.canvas.create_rectangle(canvas_width_left, current_y, canvas_width_right, current_y + os_pixel_height, fill="#ff9494", outline="black")
         self.canvas.create_text(110, current_y + (os_pixel_height / 2), text=f"OS ({self.os_size}KB)", font=("Arial", 9, "bold"))
         current_y += os_pixel_height
         
-        # Draw Blocks (Updated to include color for active jobs)
         for idx, block in enumerate(self.memory_blocks):
             block_pixel_height = heights[idx + 1]
             if block["is_free"]:
@@ -228,9 +264,7 @@ class MemoryGUIMilestone3:
                 self.canvas.create_text(110, current_y + (block_pixel_height / 2), text=f"{block['process']}\nTotal Size: {block['size']}KB", fill="black", font=("Arial", 9, "bold"), justify=tk.CENTER)
             current_y += block_pixel_height
 
-    def terminate_process(self): pass
-
 if __name__ == "__main__":
     window = tk.Tk()
-    app = MemoryGUIMilestone3(window)
+    app = CompleteMemoryGUI(window)
     window.mainloop()

@@ -264,7 +264,7 @@ class CompleteMemoryGUI:
                 self.canvas.create_text(110, current_y + (block_pixel_height / 2), text=f"{block['process']}\nTotal Size: {block['size']}KB", fill="black", font=("Arial", 9, "bold"), justify=tk.CENTER)
             current_y += block_pixel_height
 
-if __name__ == "__main__":
-    window = tk.Tk()
-    app = CompleteMemoryGUI(window)
-    window.mainloop()
+def main():
+    root = tk.Tk()
+    app = CompleteMemoryGUI(root)
+    root.mainloop()

@@ -35,8 +35,7 @@ class MassStorageGUI:
 
         tk.Label(
             self.root,
-            text="Select Scheduling Algorithm:",
-            font=("Arial", 12, "bold")
+            text="Select Scheduling Algorithm:"
         ).pack()
 
         self.algorithm_var = tk.StringVar()
@@ -52,7 +51,7 @@ class MassStorageGUI:
 
         tk.Label(
             self.root,
-            text="Enter Disk Size (for SCAN / C-SCAN):"
+            text="Disk Size (for SCAN / C-SCAN):"
         ).pack()
 
         self.disk_size_entry = tk.Entry(self.root, width=20)
@@ -90,7 +89,7 @@ class MassStorageGUI:
         self.canvas.pack(fill="both", expand=True)
 
         self.h_scroll.config(command=self.canvas.xview)
-        self.v_scroll.config(command=self.v_scroll.set)
+        self.v_scroll.config(command=self.canvas.yview)
 
     def run_simulation(self):
         try:
@@ -99,6 +98,10 @@ class MassStorageGUI:
                 for x in self.request_entry.get().split(",")
                 if x.strip()
             ]
+
+            if not requests:
+                messagebox.showerror("Error", "Enter at least one request.")
+                return
 
             head = int(self.head_entry.get())
 
@@ -134,30 +137,16 @@ class MassStorageGUI:
             return [head] + self.sstf_sequence(head, requests)
 
         elif algorithm == "SCAN":
-            return [head] + self.scan_sequence(
-                head,
-                requests,
-                disk_size
-            )
+            return [head] + self.scan_sequence(head, requests, disk_size)
 
         elif algorithm == "C-SCAN":
-            return [head] + self.cscan_sequence(
-                head,
-                requests,
-                disk_size
-            )
+            return [head] + self.cscan_sequence(head, requests, disk_size)
 
         elif algorithm == "LOOK":
-            return [head] + self.look_sequence(
-                head,
-                requests
-            )
+            return [head] + self.look_sequence(head, requests)
 
         elif algorithm == "CLOOK":
-            return [head] + self.clook_sequence(
-                head,
-                requests
-            )
+            return [head] + self.clook_sequence(head, requests)
 
         return [head] + requests
 
@@ -181,9 +170,6 @@ class MassStorageGUI:
 
     # scan
     def scan_sequence(self, head, requests, disk_size):
-        if not requests:
-            return []
-
         if disk_size is None:
             disk_size = max(requests) + 1
 
@@ -194,20 +180,20 @@ class MassStorageGUI:
 
         sequence = []
 
+        # move right first
         sequence.extend(right)
 
-        if right and right[-1] != disk_size - 1:
+        # always go to end
+        if not right or right[-1] != disk_size - 1:
             sequence.append(disk_size - 1)
 
+        # reverse back
         sequence.extend(reversed(left))
 
         return sequence
 
     # circular scan
     def cscan_sequence(self, head, requests, disk_size):
-        if not requests:
-            return []
-
         if disk_size is None:
             disk_size = max(requests) + 1
 
@@ -218,29 +204,29 @@ class MassStorageGUI:
 
         sequence = []
 
+        # move right first
         sequence.extend(right)
 
-        if right and right[-1] != disk_size - 1:
+        # always go to end
+        if not right or right[-1] != disk_size - 1:
             sequence.append(disk_size - 1)
 
+        # jump to start
         sequence.append(0)
 
+        # continue moving right
         sequence.extend(left)
 
         return sequence
 
     # look
     def look_sequence(self, head, requests):
-        if not requests:
-            return []
-
         requests = sorted(requests)
 
         left = [r for r in requests if r < head]
         right = [r for r in requests if r >= head]
 
         sequence = []
-
         sequence.extend(right)
         sequence.extend(reversed(left))
 
@@ -248,16 +234,12 @@ class MassStorageGUI:
 
     # circular look
     def clook_sequence(self, head, requests):
-        if not requests:
-            return []
-
         requests = sorted(requests)
 
         left = [r for r in requests if r < head]
         right = [r for r in requests if r >= head]
 
         sequence = []
-
         sequence.extend(right)
         sequence.extend(left)
 
@@ -271,12 +253,12 @@ class MassStorageGUI:
 
         canvas_width = max(
             self.canvas.winfo_width(),
-            (max_track - min_track) * 6 + 500
+            (max_track - min_track) * 8 + 600
         )
 
         canvas_height = max(
             self.canvas.winfo_height(),
-            len(sequence) * 100
+            len(sequence) * 120
         )
 
         self.canvas.config(
@@ -302,7 +284,7 @@ class MassStorageGUI:
 
         y_spacing = graph_height / max(1, len(sequence) - 1)
 
-        # grid
+        # draw grid
         for i in range(6):
             x = left_margin + i * (graph_width / 5)
 
@@ -343,7 +325,7 @@ class MassStorageGUI:
                 text=str(i)
             )
 
-        # lines
+        # draw lines
         for i in range(len(points) - 1):
             self.canvas.create_line(
                 points[i][0],
@@ -354,7 +336,7 @@ class MassStorageGUI:
                 width=2
             )
 
-        # points
+        # draw points
         for i, (x, y) in enumerate(points):
             color = "green" if i == 0 else "blue"
 

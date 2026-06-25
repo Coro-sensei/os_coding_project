@@ -64,7 +64,7 @@ class MassStorageGUI:
             command=self.run_simulation
         ).pack(pady=10)
 
-        # Scrollable frame
+        # graph area
         canvas_frame = tk.Frame(self.root)
         canvas_frame.pack(fill="both", expand=True)
 
@@ -90,7 +90,7 @@ class MassStorageGUI:
         self.canvas.pack(fill="both", expand=True)
 
         self.h_scroll.config(command=self.canvas.xview)
-        self.v_scroll.config(command=self.canvas.yview)
+        self.v_scroll.config(command=self.v_scroll.set)
 
     def run_simulation(self):
         try:
@@ -114,7 +114,6 @@ class MassStorageGUI:
                 disk_size
             )
 
-            # Reset old graph
             self.canvas.delete("all")
             self.canvas.xview_moveto(0)
             self.canvas.yview_moveto(0)
@@ -136,26 +135,33 @@ class MassStorageGUI:
 
         elif algorithm == "SCAN":
             return [head] + self.scan_sequence(
-                head, requests, disk_size, False, False
+                head,
+                requests,
+                disk_size
             )
 
         elif algorithm == "C-SCAN":
-            return [head] + self.scan_sequence(
-                head, requests, disk_size, True, False
+            return [head] + self.cscan_sequence(
+                head,
+                requests,
+                disk_size
             )
 
         elif algorithm == "LOOK":
-            return [head] + self.scan_sequence(
-                head, requests, disk_size, False, True
+            return [head] + self.look_sequence(
+                head,
+                requests
             )
 
         elif algorithm == "CLOOK":
-            return [head] + self.scan_sequence(
-                head, requests, disk_size, True, True
+            return [head] + self.clook_sequence(
+                head,
+                requests
             )
 
         return [head] + requests
 
+    # shortest seek time first
     def sstf_sequence(self, head, requests):
         remaining = list(requests)
         current = head
@@ -166,13 +172,15 @@ class MassStorageGUI:
                 remaining,
                 key=lambda x: abs(x - current)
             )
+
             sequence.append(nearest)
             remaining.remove(nearest)
             current = nearest
 
         return sequence
 
-    def scan_sequence(self, head, requests, disk_size, circular=False, look=False):
+    # scan
+    def scan_sequence(self, head, requests, disk_size):
         if not requests:
             return []
 
@@ -186,30 +194,72 @@ class MassStorageGUI:
 
         sequence = []
 
-        if circular:
-            if look:
-                sequence.extend(right)
-                sequence.extend(left)
-            else:
-                sequence.extend(right)
+        sequence.extend(right)
 
-                if sequence[-1] != disk_size - 1:
-                    sequence.append(disk_size - 1)
+        if right and right[-1] != disk_size - 1:
+            sequence.append(disk_size - 1)
 
-                sequence.append(0)
-                sequence.extend(left)
+        sequence.extend(reversed(left))
 
-        else:
-            if look:
-                sequence.extend(right)
-                sequence.extend(reversed(left))
-            else:
-                sequence.extend(right)
+        return sequence
 
-                if sequence[-1] != disk_size - 1:
-                    sequence.append(disk_size - 1)
+    # circular scan
+    def cscan_sequence(self, head, requests, disk_size):
+        if not requests:
+            return []
 
-                sequence.extend(reversed(left))
+        if disk_size is None:
+            disk_size = max(requests) + 1
+
+        requests = sorted(requests)
+
+        left = [r for r in requests if r < head]
+        right = [r for r in requests if r >= head]
+
+        sequence = []
+
+        sequence.extend(right)
+
+        if right and right[-1] != disk_size - 1:
+            sequence.append(disk_size - 1)
+
+        sequence.append(0)
+
+        sequence.extend(left)
+
+        return sequence
+
+    # look
+    def look_sequence(self, head, requests):
+        if not requests:
+            return []
+
+        requests = sorted(requests)
+
+        left = [r for r in requests if r < head]
+        right = [r for r in requests if r >= head]
+
+        sequence = []
+
+        sequence.extend(right)
+        sequence.extend(reversed(left))
+
+        return sequence
+
+    # circular look
+    def clook_sequence(self, head, requests):
+        if not requests:
+            return []
+
+        requests = sorted(requests)
+
+        left = [r for r in requests if r < head]
+        right = [r for r in requests if r >= head]
+
+        sequence = []
+
+        sequence.extend(right)
+        sequence.extend(left)
 
         return sequence
 
@@ -219,7 +269,6 @@ class MassStorageGUI:
         max_track = max(sequence)
         min_track = min(sequence)
 
-        # Dynamic scrollable size
         canvas_width = max(
             self.canvas.winfo_width(),
             (max_track - min_track) * 6 + 500
@@ -253,7 +302,7 @@ class MassStorageGUI:
 
         y_spacing = graph_height / max(1, len(sequence) - 1)
 
-        # Grid lines
+        # grid
         for i in range(6):
             x = left_margin + i * (graph_width / 5)
 
@@ -294,7 +343,7 @@ class MassStorageGUI:
                 text=str(i)
             )
 
-        # Draw lines
+        # lines
         for i in range(len(points) - 1):
             self.canvas.create_line(
                 points[i][0],
@@ -305,7 +354,7 @@ class MassStorageGUI:
                 width=2
             )
 
-        # Draw nodes
+        # points
         for i, (x, y) in enumerate(points):
             color = "green" if i == 0 else "blue"
 
